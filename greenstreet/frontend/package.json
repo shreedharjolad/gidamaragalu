@@ -1,0 +1,13 @@
+{
+  "name": "greenstreet",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^6.4.5",
+    "leaflet": "^1.9.4"
+  }
+}

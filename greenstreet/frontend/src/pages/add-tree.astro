@@ -1,0 +1,33 @@
+<form id="treeForm">
+
+<input
+  type="text"
+  name="species"
+  placeholder="Species"
+/>
+
+<button type="submit">
+  Save Tree
+</button>
+
+</form>
+
+<script>
+
+document
+.getElementById("treeForm")
+.addEventListener("submit", async e => {
+
+  e.preventDefault();
+
+  await fetch(
+    "http://localhost:8000/trees",
+    {
+      method: "POST"
+    }
+  );
+
+  alert("Tree Saved");
+});
+
+</script>

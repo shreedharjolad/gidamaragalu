@@ -1,0 +1,34 @@
+---
+const {
+  id,
+  species,
+  status,
+  lastUpdate,
+  guardian
+} = Astro.props;
+---
+
+<div class="border rounded-lg p-4 shadow">
+  <h2>🌳 Tree # {id}</h2>
+
+  <p><strong>Species:</strong> {species}</p>
+
+  <p>
+    <strong>Status:</strong>
+    {status}
+  </p>
+
+  <p>
+    <strong>Last Update:</strong>
+    {lastUpdate}
+  </p>
+
+  <p>
+    <strong>Guardian:</strong>
+    {guardian || "None"}
+  </p>
+
+  <button>
+    I'll Check This Tree
+  </button>
+</div>
