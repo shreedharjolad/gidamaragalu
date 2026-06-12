@@ -21,6 +21,32 @@ import "leaflet/dist/leaflet.css";
       15
     );
 
+    let selectedMarker = null;
+
+    map.on("click", (event) => {
+
+      const lat = event.latlng.lat;
+      const lng = event.latlng.lng;
+
+      document.getElementById("latitude").value = lat;
+      document.getElementById("longitude").value = lng;
+
+      document.getElementById(
+        "selected-location"
+      ).innerHTML =
+        `Selected: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+
+      if (selectedMarker) {
+        map.removeLayer(selectedMarker);
+      }
+
+      selectedMarker = L.marker([
+        lat,
+        lng
+      ]).addTo(map);
+
+    });
+
     L.tileLayer(
       "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
       {
