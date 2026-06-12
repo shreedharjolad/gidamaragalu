@@ -1,22 +1,67 @@
+---
+import "leaflet/dist/leaflet.css";
+---
+
 <div id="map"></div>
 
 <style>
 #map {
+  width: 100%;
   height: 600px;
 }
 </style>
 
 <script>
-import L from "leaflet";
+  import L from "leaflet";
 
-const map = L.map("map")
-.setView([19.0760,72.8777],13);
+  window.addEventListener("load", () => {
 
-L.tileLayer(
-'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-).addTo(map);
+    const map = L.map("map").setView(
+      [17.3297, 76.8343],
+      15
+    );
 
-L.marker([19.0760,72.8777])
-.addTo(map)
-.bindPopup("Neem Tree");
+    L.tileLayer(
+      "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        maxZoom: 19,
+        attribution:
+          "&copy; OpenStreetMap contributors"
+      }
+    ).addTo(map);
+
+    // Fetch trees from backend
+    fetch("http://localhost:8000/trees")
+      .then(response => response.json())
+      .then(trees => {
+
+        trees.forEach(tree => {
+
+          // Skip old trees without coordinates
+          if (
+            tree.latitude === null ||
+            tree.longitude === null
+          ) {
+            return;
+          }
+
+          L.marker([
+            tree.latitude,
+            tree.longitude
+          ])
+          .addTo(map)
+          .bindPopup(`
+            <b>${tree.species}</b><br>
+            Status: ${tree.status}
+          `);
+
+        });
+
+      });
+
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+
+  });
 </script>

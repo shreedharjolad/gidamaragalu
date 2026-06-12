@@ -26,7 +26,9 @@ def get_trees():
                 "id": tree.id,
                 "species": tree.species,
                 "status": tree.status,
-                "guardian": tree.guardian
+                "guardian": tree.guardian,
+                "latitude": tree.latitude,
+                "longitude": tree.longitude
             }
             for tree in trees
         ]
@@ -73,7 +75,9 @@ def create_tree(payload: TreeRequest):
         tree = Tree(
             species=payload.species,
             status="Healthy",
-            guardian=None
+            guardian=None,
+            latitude=payload.latitude,
+            longitude=payload.longitude
         )
 
         db.add(tree)
