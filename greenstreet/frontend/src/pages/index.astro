@@ -2,12 +2,106 @@
 import MapView from "../components/MapView.astro";
 ---
 
-<html>
-<body>
+<h1>🌳 GreenStreet</h1>
 
-<h1>GreenStreet</h1>
+<div class="toolbar">
+
+  <input
+    id="species"
+    type="text"
+    placeholder="Tree species"
+  />
+
+  <div id="selected-location">
+    Click on map to select location
+  </div>
+
+  <input id="latitude" type="hidden" />
+
+  <input id="longitude" type="hidden" />
+
+  <button id="save-tree">
+    Add Tree
+  </button>
+
+</div>
 
 <MapView />
 
-</body>
-</html>
+<style>
+.toolbar {
+  margin: 1rem;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+input {
+  padding: 8px;
+}
+
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+</style>
+
+<script>
+window.addEventListener("load", () => {
+
+  document
+    .getElementById("save-tree")
+    .addEventListener("click", async () => {
+
+      const species =
+        document.getElementById("species").value;
+
+      const latitude =
+        parseFloat(
+          document.getElementById("latitude").value
+        );
+
+      const longitude =
+        parseFloat(
+          document.getElementById("longitude").value
+        );
+
+      if (
+        isNaN(latitude) ||
+        isNaN(longitude)
+      ) {
+        alert(
+          "Please click on the map first."
+        );
+
+        return;
+      }
+
+      const response = await fetch(
+        "http://localhost:8000/trees",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            species,
+            latitude,
+            longitude
+          })
+        }
+      );
+
+      if (response.ok) {
+        alert("Tree added!");
+
+        location.reload();
+      }
+      else {
+        alert("Failed to add tree");
+      }
+
+    });
+
+});
+</script>
