@@ -16,11 +16,22 @@ import MapView from "../components/MapView.astro";
     Click on map to select location
   </div>
 
-  <input id="latitude" type="hidden" />
+  <div id="message"></div>
 
-  <input id="longitude" type="hidden" />
+  <input
+    id="latitude"
+    type="hidden"
+  />
 
-  <button id="save-tree">
+  <input
+    id="longitude"
+    type="hidden"
+  />
+
+  <button
+    id="save-tree"
+    type="button"
+  >
     Add Tree
   </button>
 
@@ -29,11 +40,13 @@ import MapView from "../components/MapView.astro";
 <MapView />
 
 <style>
+
 .toolbar {
   margin: 1rem;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 input {
@@ -44,17 +57,61 @@ button {
   padding: 8px 12px;
   cursor: pointer;
 }
+
+#selected-location {
+  font-weight: bold;
+}
+
+#message {
+  min-height: 24px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.error {
+  color: red;
+}
+
+.success {
+  color: green;
+}
+
 </style>
 
 <script>
+
 window.addEventListener("load", () => {
 
   document
     .getElementById("save-tree")
     .addEventListener("click", async () => {
 
+      const message =
+        document.getElementById("message");
+
+      message.textContent = "";
+      message.className = "";
+
       const species =
         document.getElementById("species").value;
+
+      if (
+        !species ||
+        species.trim().length === 0
+      ) {
+
+        message.textContent =
+          "Please enter tree species.";
+
+        message.className =
+          "error";
+
+        document
+          .getElementById("species")
+          .focus();
+
+        return;
+      }
 
       const latitude =
         parseFloat(
@@ -70,38 +127,71 @@ window.addEventListener("load", () => {
         isNaN(latitude) ||
         isNaN(longitude)
       ) {
-        alert(
-          "Please click on the map first."
-        );
+
+        message.textContent =
+          "Please click on the map first.";
+
+        message.className =
+          "error";
 
         return;
       }
 
-      const response = await fetch(
-        "http://localhost:8000/trees",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            species,
-            latitude,
-            longitude
-          })
+      try {
+
+        const response =
+          await fetch(
+            "http://localhost:8000/trees",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+              body: JSON.stringify({
+                species,
+                latitude,
+                longitude
+              })
+            }
+          );
+
+        if (response.ok) {
+
+          message.textContent =
+            "Tree added successfully.";
+
+          message.className =
+            "success";
+
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+
+        } else {
+
+          message.textContent =
+            "Failed to add tree.";
+
+          message.className =
+            "error";
+
         }
-      );
 
-      if (response.ok) {
-        alert("Tree added!");
+      } catch (error) {
 
-        location.reload();
-      }
-      else {
-        alert("Failed to add tree");
+        console.error(error);
+
+        message.textContent =
+          "Unable to connect to backend.";
+
+        message.className =
+          "error";
+
       }
 
     });
 
 });
+
 </script>

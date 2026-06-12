@@ -14,6 +14,49 @@ import "leaflet/dist/leaflet.css";
 <script>
   import L from "leaflet";
 
+  window.adoptTree = async function(treeId) {
+    alert(`Adopt clicked for tree ${treeId}`);
+
+    console.log(
+      "adoptTree called",
+      treeId
+    );
+
+  const guardian =
+    prompt(
+      "Enter your name:"
+    );
+
+  if (!guardian) {
+    return;
+  }
+
+  const response =
+    await fetch(
+      `http://localhost:8000/trees/${treeId}/adopt`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+        body: JSON.stringify({
+          guardian
+        })
+      }
+    );
+
+  if (response.ok) {
+
+    alert(
+      "Tree adopted successfully!"
+    );
+
+    location.reload();
+  }
+
+};
+
   window.addEventListener("load", () => {
 
     const map = L.map("map").setView(
@@ -71,23 +114,49 @@ import "leaflet/dist/leaflet.css";
             return;
           }
 
-          L.marker([
+          const marker = L.marker([
             tree.latitude,
             tree.longitude
           ])
           .addTo(map)
           .bindPopup(`
-            <b>${tree.species}</b><br>
-            Status: ${tree.status}
+          <div style="
+            min-width:220px;
+            padding:8px;
+          ">
+
+          <h3>🌳 ${tree.species}</h3>
+
+          <hr>
+
+          <p><b>ID:</b> ${tree.id}</p>
+
+          <p><b>Status:</b> ${tree.status}</p>
+
+          <p>
+          <b>Guardian:</b>
+          ${tree.guardian || "None"}
+          </p>
+
+          <button
+            id="adopt-btn-${tree.id}"
+            data-tree-id="${tree.id}">
+            Adopt Tree
+          </button>
+
+          </div>
           `);
 
+          marker.on('popupopen', () => {
+            const btn = document.getElementById(`adopt-btn-${tree.id}`);
+            if (btn) {
+              btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.adoptTree(tree.id);
+              });
+            }
+          });
         });
-
       });
-
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
-
   });
 </script>

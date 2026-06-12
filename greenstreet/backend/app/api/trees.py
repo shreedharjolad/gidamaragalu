@@ -9,6 +9,8 @@ from fastapi import File
 
 from app.services.minio_service import client
 from app.services.minio_service import BUCKET_NAME
+from pydantic import BaseModel
+from datetime import datetime
 
 router = APIRouter()
 
@@ -28,7 +30,8 @@ def get_trees():
                 "status": tree.status,
                 "guardian": tree.guardian,
                 "latitude": tree.latitude,
-                "longitude": tree.longitude
+                "longitude": tree.longitude,
+                "last_reported_at": tree.last_reported_at
             }
             for tree in trees
         ]
@@ -117,3 +120,80 @@ def upload_tree_photo(
         "message": "Photo uploaded",
         "file": object_name
     }
+
+class AdoptRequest(BaseModel):
+    guardian: str
+
+class HealthReportRequest(BaseModel):
+    status: str
+    
+@router.post("/trees/{tree_id}/adopt")
+def adopt_tree(
+    tree_id: int,
+    payload: AdoptRequest
+):
+    db = SessionLocal()
+
+    try:
+
+        tree = (
+            db.query(Tree)
+            .filter(Tree.id == tree_id)
+            .first()
+        )
+
+        if not tree:
+            return {
+                "error": "Tree not found"
+            }
+
+        tree.guardian = payload.guardian
+
+        db.commit()
+
+        return {
+            "message": "Tree adopted",
+            "guardian": tree.guardian
+        }
+
+    finally:
+        db.close()
+
+@router.post("/trees/{tree_id}/report")
+def report_tree_health(
+    tree_id: int,
+    payload: HealthReportRequest
+):
+
+    db = SessionLocal()
+
+    try:
+
+        tree = (
+            db.query(Tree)
+            .filter(Tree.id == tree_id)
+            .first()
+        )
+
+        if not tree:
+
+            return {
+                "error": "Tree not found"
+            }
+
+        tree.status = payload.status
+
+        tree.last_reported_at = (
+            datetime.utcnow()
+        )
+
+        db.commit()
+
+        return {
+            "message":
+            "Health updated"
+        }
+
+    finally:
+
+        db.close()

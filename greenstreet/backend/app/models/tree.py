@@ -2,6 +2,7 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import Float
+from sqlalchemy import DateTime
 
 from app.database.connection import Base
 
@@ -20,3 +21,5 @@ class Tree(Base):
     latitude = Column(Float)
 
     longitude = Column(Float)
+
+    last_reported_at = Column(DateTime)
