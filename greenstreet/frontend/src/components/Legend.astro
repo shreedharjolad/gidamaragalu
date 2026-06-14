@@ -1,0 +1,74 @@
+<div class="legend">
+
+  <div class="legend-item">
+    <span class="dot healthy"></span>
+    Healthy
+  </div>
+
+  <div class="legend-item">
+    <span class="dot water"></span>
+    Needs Water
+  </div>
+
+  <div class="legend-item">
+    <span class="dot broken"></span>
+    Broken Branch
+  </div>
+
+  <div class="legend-item">
+    <span class="dot pest"></span>
+    Pest Infection
+  </div>
+
+  <div class="legend-item">
+    <span class="dot alert"></span>
+    Illegal Cutting
+  </div>
+
+</div>
+
+<style>
+.legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 1rem;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.healthy {
+  background: green;
+}
+
+.water {
+  background: blue;
+}
+
+.broken {
+  background: orange;
+}
+
+.pest {
+  background: purple;
+}
+
+.alert {
+  background: red;
+}
+</style>

@@ -95,3 +95,6 @@ Features
 - Duplicate tree detection
 - Species autocomplete
 - GPS accuracy indicator
+
+# Future Enhancement:
+Replace public MinIO bucket access with FastAPI-generated presigned URLs.

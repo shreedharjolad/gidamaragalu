@@ -17,6 +17,8 @@ class Tree(Base):
     status = Column(String)
 
     guardian = Column(String, nullable=True)
+    
+    photo = Column(String, nullable=True)
 
     latitude = Column(Float)
 
