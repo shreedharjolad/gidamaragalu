@@ -29,6 +29,9 @@ def get_trees():
                 "species": tree.species,
                 "status": tree.status,
                 "guardian": tree.guardian,
+                "photo": (f"http://localhost:9000/{BUCKET_NAME}/{tree.photo}"
+                            if tree.photo
+                            else None),
                 "latitude": tree.latitude,
                 "longitude": tree.longitude,
                 "last_reported_at": tree.last_reported_at
@@ -62,7 +65,8 @@ def get_tree(tree_id: int):
             "id": tree.id,
             "species": tree.species,
             "status": tree.status,
-            "guardian": tree.guardian
+            "guardian": tree.guardian,
+            "photo": tree.photo
         }
 
     finally:
@@ -105,21 +109,49 @@ def upload_tree_photo(
     file: UploadFile = File(...)
 ):
 
-    object_name = f"tree-{tree_id}.jpg"
+    db = SessionLocal()
 
-    client.put_object(
-        bucket_name=BUCKET_NAME,
-        object_name=object_name,
-        data=file.file,
-        length=-1,
-        part_size=10 * 1024 * 1024,
-        content_type=file.content_type
-    )
+    try:
 
-    return {
-        "message": "Photo uploaded",
-        "file": object_name
-    }
+        tree = (
+            db.query(Tree)
+            .filter(Tree.id == tree_id)
+            .first()
+        )
+
+        if not tree:
+
+            return {
+                "error": "Tree not found"
+            }
+
+        object_name = (
+            f"tree-{tree_id}.jpg"
+        )
+
+        client.put_object(
+            bucket_name=BUCKET_NAME,
+            object_name=object_name,
+            data=file.file,
+            length=-1,
+            part_size=10 * 1024 * 1024,
+            content_type=file.content_type
+        )
+
+        tree.photo = object_name
+
+        db.commit()
+
+        return {
+            "message":
+            "Photo uploaded",
+            "file":
+            object_name
+        }
+
+    finally:
+
+        db.close()
 
 class AdoptRequest(BaseModel):
     guardian: str
@@ -145,6 +177,10 @@ def adopt_tree(
         if not tree:
             return {
                 "error": "Tree not found"
+            }
+        if tree.guardian:
+            return {
+                "error": "Tree already adopted"
             }
 
         tree.guardian = payload.guardian

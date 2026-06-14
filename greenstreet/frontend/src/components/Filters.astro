@@ -1,0 +1,73 @@
+<div class="filters">
+
+  <input
+    id="species-filter"
+    type="text"
+    placeholder="Search species..."
+  />
+
+  <label>
+    <input
+      type="checkbox"
+      value="Healthy"
+      checked
+      class="status-filter"
+    />
+    Healthy
+  </label>
+
+  <label>
+    <input
+      type="checkbox"
+      value="Needs Water"
+      checked
+      class="status-filter"
+    />
+    Needs Water
+  </label>
+
+  <label>
+    <input
+      type="checkbox"
+      value="Broken Branch"
+      checked
+      class="status-filter"
+    />
+    Broken Branch
+  </label>
+
+  <label>
+    <input
+      type="checkbox"
+      value="Pest Infection"
+      checked
+      class="status-filter"
+    />
+    Pest Infection
+  </label>
+
+  <label>
+    <input
+      type="checkbox"
+      value="Illegal Cutting"
+      checked
+      class="status-filter"
+    />
+    Illegal Cutting
+  </label>
+
+</div>
+
+<style>
+.filters {
+  margin: 1rem;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filters input[type="text"] {
+  padding: 8px;
+}
+</style>

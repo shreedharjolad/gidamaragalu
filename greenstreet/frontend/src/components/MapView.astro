@@ -9,23 +9,84 @@ import "leaflet/dist/leaflet.css";
   width: 100%;
   height: 600px;
 }
+
+.leaflet-popup-content button {
+  margin-right: 8px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.leaflet-popup-content button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.leaflet-div-icon {
+  background: transparent !important;
+  border: none !important;
+  font-size: 28px;
+}
 </style>
 
 <script>
-  import L from "leaflet";
+import L from "leaflet";
 
-  window.adoptTree = async function(treeId) {
-    alert(`Adopt clicked for tree ${treeId}`);
+const healthyIcon = L.divIcon({
+  html: "🌳",
+  className: "",
+  iconSize: [30, 30]
+});
 
-    console.log(
-      "adoptTree called",
-      treeId
-    );
+const waterIcon = L.divIcon({
+  html: "💧",
+  className: "",
+  iconSize: [30, 30]
+});
+
+const brokenIcon = L.divIcon({
+  html: "⚠️",
+  className: "",
+  iconSize: [30, 30]
+});
+
+const pestIcon = L.divIcon({
+  html: "🐛",
+  className: "",
+  iconSize: [30, 30]
+});
+
+const alertIcon = L.divIcon({
+  html: "🚨",
+  className: "",
+  iconSize: [30, 30]
+});
+
+function getTreeIcon(status) {
+
+  switch (status) {
+
+    case "Needs Water":
+      return waterIcon;
+
+    case "Broken Branch":
+      return brokenIcon;
+
+    case "Pest Infection":
+      return pestIcon;
+
+    case "Illegal Cutting":
+      return alertIcon;
+
+    default:
+      return healthyIcon;
+  }
+}
+
+window.adoptTree = async function(treeId) {
 
   const guardian =
-    prompt(
-      "Enter your name:"
-    );
+    prompt("Enter your name:");
 
   if (!guardian) {
     return;
@@ -46,78 +107,286 @@ import "leaflet/dist/leaflet.css";
       }
     );
 
+  const result =
+    await response.json();
+
+  if (result.error) {
+
+    alert(result.error);
+
+    return;
+  }
+
+  alert(
+    "Tree adopted successfully!"
+  );
+
+  location.reload();
+};
+
+window.reportHealth =
+async function(treeId) {
+
+  const status =
+    prompt(
+`Enter tree status:
+
+Healthy
+Needs Water
+Broken Branch
+Pest Infection
+Illegal Cutting`
+    );
+
+  if (!status) {
+    return;
+  }
+
+  const response =
+    await fetch(
+      `http://localhost:8000/trees/${treeId}/report`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+        body: JSON.stringify({
+          status
+        })
+      }
+    );
+
   if (response.ok) {
 
     alert(
-      "Tree adopted successfully!"
+      "Health report submitted"
     );
 
     location.reload();
+  } else {
+
+    alert(
+      "Failed to update health"
+    );
+  }
+};
+
+window.uploadPhoto =
+async function(treeId) {
+
+  console.log(
+    "UPLOAD CLICKED",
+    treeId
+  );
+
+  const input =
+    document.getElementById(
+      `photo-${treeId}`
+    );
+
+  console.log(
+    "INPUT:",
+    input
+  );
+
+  if (input) {
+
+    console.log(
+      "FILES:",
+      input.files
+    );
+
+    console.log(
+      "FILES LENGTH:",
+      input.files.length
+    );
+  }
+
+  if (
+    !input ||
+    !input.files ||
+    input.files.length === 0
+  ) {
+
+    alert(
+      "Please select a photo"
+    );
+
+    return;
+  }
+
+  const formData =
+    new FormData();
+
+  formData.append(
+    "file",
+    input.files[0]
+  );
+
+  console.log(
+    "UPLOADING..."
+  );
+
+  const response =
+    await fetch(
+      `http://localhost:8000/trees/${treeId}/photo`,
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+  console.log(
+    "STATUS:",
+    response.status
+  );
+
+  if (response.ok) {
+
+    alert(
+      "Photo uploaded!"
+    );
+
+    location.reload();
+
+  } else {
+
+    const text =
+      await response.text();
+
+    console.log(
+      "ERROR:",
+      text
+    );
+
+    alert(
+      "Upload failed"
+    );
   }
 
 };
 
-  window.addEventListener("load", () => {
+window.addEventListener("load", () => {
 
-    const map = L.map("map").setView(
-      [17.3297, 76.8343],
-      15
-    );
+  let treeMarkers = [];
+  let allTrees = [];
 
-    let selectedMarker = null;
+  const map =
+    L.map("map")
+      .setView(
+        [17.3297, 76.8343],
+        15
+      );
 
-    map.on("click", (event) => {
+  let selectedMarker = null;
 
-      const lat = event.latlng.lat;
-      const lng = event.latlng.lng;
+  map.on("click", (event) => {
 
-      document.getElementById("latitude").value = lat;
-      document.getElementById("longitude").value = lng;
+    const lat =
+      event.latlng.lat;
 
-      document.getElementById(
+    const lng =
+      event.latlng.lng;
+
+    document
+      .getElementById("latitude")
+      .value = lat;
+
+    document
+      .getElementById("longitude")
+      .value = lng;
+
+    document
+      .getElementById(
         "selected-location"
       ).innerHTML =
         `Selected: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 
-      if (selectedMarker) {
-        map.removeLayer(selectedMarker);
-      }
+    if (selectedMarker) {
 
-      selectedMarker = L.marker([
-        lat,
-        lng
-      ]).addTo(map);
+      map.removeLayer(
+        selectedMarker
+      );
+    }
 
+    selectedMarker =
+      L.marker(
+        [lat, lng],
+        {
+          icon: healthyIcon
+        }
+      ).addTo(map);
+
+  });
+
+  L.tileLayer(
+    "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      maxZoom: 19,
+      attribution:
+        "&copy; OpenStreetMap contributors"
+    }
+  ).addTo(map);
+
+  function renderTrees() {
+
+    treeMarkers.forEach(marker => {
+      map.removeLayer(marker);
     });
 
-    L.tileLayer(
-      "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-      {
-        maxZoom: 19,
-        attribution:
-          "&copy; OpenStreetMap contributors"
-      }
-    ).addTo(map);
+    treeMarkers = [];
 
-    // Fetch trees from backend
-    fetch("http://localhost:8000/trees")
-      .then(response => response.json())
-      .then(trees => {
+    const searchText =
+      document
+        .getElementById(
+          "species-filter"
+        )
+        ?.value
+        ?.toLowerCase() || "";
 
-        trees.forEach(tree => {
+    const selectedStatuses =
+      Array.from(
+        document.querySelectorAll(
+          ".status-filter:checked"
+        )
+      ).map(
+        checkbox => checkbox.value
+      );
 
-          // Skip old trees without coordinates
-          if (
-            tree.latitude === null ||
-            tree.longitude === null
-          ) {
-            return;
-          }
+    allTrees
+      .filter(tree => {
 
-          const marker = L.marker([
-            tree.latitude,
-            tree.longitude
-          ])
+        const speciesMatch =
+          tree.species
+            .toLowerCase()
+            .includes(searchText);
+
+        const statusMatch =
+          selectedStatuses.includes(
+            tree.status
+          );
+
+        return (
+          speciesMatch &&
+          statusMatch
+        );
+      })
+      .forEach(tree => {
+
+        const marker =
+          L.marker(
+            [
+              tree.latitude,
+              tree.longitude
+            ],
+            {
+              icon:
+                getTreeIcon(
+                  tree.status
+                )
+            }
+          )
           .addTo(map)
           .bindPopup(`
           <div style="
@@ -125,38 +394,143 @@ import "leaflet/dist/leaflet.css";
             padding:8px;
           ">
 
-          <h3>🌳 ${tree.species}</h3>
+          <h3>
+          🌳 ${tree.species}
+          </h3>
 
           <hr>
 
-          <p><b>ID:</b> ${tree.id}</p>
+          <p>
+          <b>ID:</b>
+          ${tree.id}
+          </p>
 
-          <p><b>Status:</b> ${tree.status}</p>
+          ${
+          tree.photo
+          ?
+          `
+          <img
+            src="${tree.photo}"
+            style="
+              width:100%;
+              max-width:220px;
+              border-radius:8px;
+              margin-bottom:10px;
+            "
+          />
+          `
+          :
+          `
+          <p>No photo uploaded</p>
+          `
+          }
+
+          <p>
+          <b>Status:</b>
+          ${tree.status}
+          </p>
+
+          <p>
+          <b>Last Report:</b>
+          ${
+          tree.last_reported_at
+          ?
+          new Date(
+          tree.last_reported_at
+          ).toLocaleString()
+          :
+          "Never"
+          }
+          </p>
 
           <p>
           <b>Guardian:</b>
           ${tree.guardian || "None"}
           </p>
 
+          ${
+          tree.guardian
+          ?
+          `
+          <button disabled>
+          Already Adopted
+          </button>
+          `
+          :
+          `
           <button
-            id="adopt-btn-${tree.id}"
-            data-tree-id="${tree.id}">
-            Adopt Tree
+          onclick="window.adoptTree(${tree.id})">
+          Adopt Tree
+          </button>
+          `
+          }
+
+          <button
+          onclick="window.reportHealth(${tree.id})">
+          Report Health
+          </button>
+
+          <hr>
+          <input
+          type="file"
+          id="photo-${tree.id}"
+          accept="image/*"
+          />
+
+          <br><br>
+
+          <button
+          onclick="window.uploadPhoto(${tree.id})">
+          Upload Photo
           </button>
 
           </div>
-          `);
+          `)
 
-          marker.on('popupopen', () => {
-            const btn = document.getElementById(`adopt-btn-${tree.id}`);
-            if (btn) {
-              btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                window.adoptTree(tree.id);
-              });
-            }
-          });
-        });
+        treeMarkers.push(
+          marker
+        );
+
       });
-  });
+
+  }
+
+  fetch(
+    "http://localhost:8000/trees"
+  )
+    .then(
+      response => response.json()
+    )
+    .then(trees => {
+
+      allTrees =
+        trees.filter(
+          tree =>
+            tree.latitude !== null &&
+            tree.longitude !== null
+        );
+
+      renderTrees();
+
+    });
+
+document.addEventListener(
+  "input",
+  (event) => {
+
+    if (
+      event.target.id ===
+        "species-filter" ||
+
+      event.target.classList
+        ?.contains(
+          "status-filter"
+        )
+    ) {
+      renderTrees();
+    }
+
+  }
+);
+});
 </script>

@@ -1,0 +1,117 @@
+<div id="dashboard">
+
+  <div class="card">
+    <h3>Trees</h3>
+    <p id="total-trees">0</p>
+  </div>
+
+  <div class="card">
+    <h3>Adopted</h3>
+    <p id="adopted-trees">0</p>
+  </div>
+
+  <div class="card">
+    <h3>Need Water</h3>
+    <p id="needs-water">0</p>
+  </div>
+
+  <div class="card">
+    <h3>Alerts</h3>
+    <p id="alerts">0</p>
+  </div>
+
+</div>
+
+<style>
+#dashboard {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin: 1rem;
+}
+
+.card {
+  min-width: 150px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  text-align: center;
+}
+
+.card h3 {
+  margin: 0;
+}
+
+.card p {
+  font-size: 28px;
+  font-weight: bold;
+}
+</style>
+
+<script>
+
+window.addEventListener("load", async () => {
+
+  const response =
+    await fetch(
+      "http://localhost:8000/trees"
+    );
+
+  const trees =
+    await response.json();
+
+  const totalTrees =
+    trees.length;
+
+  const adoptedTrees =
+    trees.filter(
+      t => t.guardian
+    ).length;
+
+  const needsWater =
+    trees.filter(
+      t =>
+      t.status ===
+      "Needs Water"
+    ).length;
+
+  const alerts =
+    trees.filter(
+        t =>
+        t.status === "Illegal Cutting" ||
+        t.status === "Broken Branch" ||
+        t.status === "Pest Infection"
+    ).length;
+
+  document
+    .getElementById(
+      "total-trees"
+    )
+    .textContent =
+    totalTrees;
+
+  document
+    .getElementById(
+      "adopted-trees"
+    )
+    .textContent =
+    adoptedTrees;
+
+  document
+    .getElementById(
+      "needs-water"
+    )
+    .textContent =
+    needsWater;
+
+  document
+    .getElementById(
+      "alerts"
+    )
+    .textContent =
+    alerts;
+
+});
+
+</script>
