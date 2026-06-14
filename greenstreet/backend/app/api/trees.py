@@ -12,6 +12,8 @@ from app.services.minio_service import BUCKET_NAME
 from pydantic import BaseModel
 from datetime import datetime
 
+from sqlalchemy import func
+
 router = APIRouter()
 
 
@@ -229,6 +231,42 @@ def report_tree_health(
             "message":
             "Health updated"
         }
+
+    finally:
+
+        db.close()
+
+@router.get("/leaderboard")
+def leaderboard():
+
+    db = SessionLocal()
+
+    try:
+
+        results = (
+            db.query(
+                Tree.guardian,
+                func.count(Tree.id)
+            )
+            .filter(
+                Tree.guardian.isnot(None)
+            )
+            .group_by(
+                Tree.guardian
+            )
+            .order_by(
+                func.count(Tree.id).desc()
+            )
+            .all()
+        )
+
+        return [
+            {
+                "guardian": guardian,
+                "count": count
+            }
+            for guardian, count in results
+        ]
 
     finally:
 
