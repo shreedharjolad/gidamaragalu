@@ -271,3 +271,57 @@ def leaderboard():
     finally:
 
         db.close()
+
+@router.get("/analytics")
+def analytics():
+
+    db = SessionLocal()
+
+    try:
+
+        trees = db.query(Tree).all()
+
+        return {
+            "total_trees":
+                len(trees),
+
+            "adopted_trees":
+                len([
+                    t for t in trees
+                    if t.guardian
+                ]),
+
+            "healthy":
+                len([
+                    t for t in trees
+                    if t.status == "Healthy"
+                ]),
+
+            "needs_water":
+                len([
+                    t for t in trees
+                    if t.status == "Needs Water"
+                ]),
+
+            "broken_branch":
+                len([
+                    t for t in trees
+                    if t.status == "Broken Branch"
+                ]),
+
+            "pest_infection":
+                len([
+                    t for t in trees
+                    if t.status == "Pest Infection"
+                ]),
+
+            "illegal_cutting":
+                len([
+                    t for t in trees
+                    if t.status == "Illegal Cutting"
+                ])
+        }
+
+    finally:
+
+        db.close()
