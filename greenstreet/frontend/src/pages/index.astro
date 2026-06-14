@@ -9,6 +9,26 @@ import MapView from "../components/MapView.astro";
 
 <Dashboard />
 
+<div class="analytics">
+
+  <div id="healthy-card"></div>
+
+  <div id="water-card"></div>
+
+  <div id="broken-card"></div>
+
+  <div id="pest-card"></div>
+
+  <div id="illegal-card"></div>
+
+</div>
+
+<h2>Top Guardians</h2>
+
+<div id="leaderboard">
+Loading...
+</div>
+
 <Legend />
 
 <Filters />
@@ -83,6 +103,19 @@ button {
 
 .success {
   color: green;
+}
+
+.analytics {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.analytics div {
+  border: 1px solid #ccc;
+  padding: 12px;
+  min-width: 140px;
 }
 
 </style>
@@ -202,5 +235,76 @@ window.addEventListener("load", () => {
     });
 
 });
+
+fetch(
+  "http://localhost:8000/leaderboard"
+)
+  .then(
+    response => response.json()
+  )
+  .then(data => {
+
+    const container =
+      document.getElementById(
+        "leaderboard"
+      );
+
+    if (data.length === 0) {
+
+      container.innerHTML =
+        "No guardians yet";
+
+      return;
+    }
+
+    container.innerHTML =
+      data
+        .map(
+          (item, index) =>
+            `
+            <div>
+              ${index + 1}.
+              ${item.guardian}
+              (${item.count})
+            </div>
+            `
+        )
+        .join("");
+
+  });
+
+fetch(
+  "http://localhost:8000/analytics"
+)
+  .then(
+    response => response.json()
+  )
+  .then(data => {
+
+    document.getElementById(
+      "healthy-card"
+    ).innerHTML =
+      `Healthy<br>${data.healthy}`;
+
+    document.getElementById(
+      "water-card"
+    ).innerHTML =
+      `Needs Water<br>${data.needs_water}`;
+
+    document.getElementById(
+      "broken-card"
+    ).innerHTML =
+      `Broken Branch<br>${data.broken_branch}`;
+
+    document.getElementById(
+      "pest-card"
+    ).innerHTML =
+      `Pest Infection<br>${data.pest_infection}`;
+
+    document.getElementById(
+      "illegal-card"
+    ).innerHTML =
+      `Illegal Cutting<br>${data.illegal_cutting}`;
+  });
 
 </script>
