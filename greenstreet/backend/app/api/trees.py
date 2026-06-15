@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi import HTTPException
 
 from app.database.connection import SessionLocal
@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from sqlalchemy import func
+from app.auth.dependencies import require_admin
 
 router = APIRouter()
 
@@ -74,9 +75,11 @@ def get_tree(tree_id: int):
     finally:
         db.close()
 
-
 @router.post("/trees")
-def create_tree(payload: TreeRequest):
+def create_tree(
+    payload: dict,
+    _ = Depends(require_admin)
+):
 
     db = SessionLocal()
 
@@ -327,7 +330,11 @@ def analytics():
         db.close()
 
 @router.put("/trees/{tree_id}")
-def update_tree(tree_id: int, payload: dict):
+def update_tree(
+    tree_id: int,
+    payload: dict,
+    _ = Depends(require_admin)
+):
 
     db = SessionLocal()
 
@@ -350,7 +357,10 @@ def update_tree(tree_id: int, payload: dict):
         db.close()
 
 @router.delete("/trees/{tree_id}")
-def delete_tree(tree_id: int):
+def delete_tree(
+    tree_id: int,
+    _ = Depends(require_admin)
+):
 
     db = SessionLocal()
 
