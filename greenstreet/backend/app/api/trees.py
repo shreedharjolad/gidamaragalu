@@ -325,3 +325,47 @@ def analytics():
     finally:
 
         db.close()
+
+@router.put("/trees/{tree_id}")
+def update_tree(tree_id: int, payload: dict):
+
+    db = SessionLocal()
+
+    try:
+
+        tree = db.query(Tree).filter(Tree.id == tree_id).first()
+
+        if not tree:
+            return {"error": "Tree not found"}
+
+        tree.species = payload.get("species", tree.species)
+        tree.status = payload.get("status", tree.status)
+
+        db.commit()
+
+        return {"message": "Tree updated"}
+
+    finally:
+
+        db.close()
+
+@router.delete("/trees/{tree_id}")
+def delete_tree(tree_id: int):
+
+    db = SessionLocal()
+
+    try:
+
+        tree = db.query(Tree).filter(Tree.id == tree_id).first()
+
+        if not tree:
+            return {"error": "Tree not found"}
+
+        db.delete(tree)
+        db.commit()
+
+        return {"message": "Tree deleted"}
+
+    finally:
+
+        db.close()

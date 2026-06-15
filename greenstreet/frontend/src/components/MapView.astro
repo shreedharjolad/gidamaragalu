@@ -129,14 +129,14 @@ async function(treeId) {
 
   const status =
     prompt(
-`Enter tree status:
+      `Enter tree status:
 
-Healthy
-Needs Water
-Broken Branch
-Pest Infection
-Illegal Cutting`
-    );
+      Healthy
+      Needs Water
+      Broken Branch
+      Pest Infection
+      Illegal Cutting`
+      );
 
   if (!status) {
     return;
@@ -169,6 +169,42 @@ Illegal Cutting`
     alert(
       "Failed to update health"
     );
+  }
+};
+
+window.editTree = async function(treeId, currentSpecies, currentStatus) {
+
+  const species = prompt("Species", currentSpecies);
+  if (!species) return;
+
+  const status = prompt("Status", currentStatus);
+  if (!status) return;
+
+  const response = await fetch(`http://localhost:8000/trees/${treeId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ species, status })
+  });
+
+  if (response.ok) {
+    alert("Tree updated");
+    location.reload();
+  }
+};
+
+window.deleteTree = async function(treeId) {
+
+  if (!confirm("Delete this tree?")) return;
+
+  const response = await fetch(`http://localhost:8000/trees/${treeId}`, {
+    method: "DELETE"
+  });
+
+  if (response.ok) {
+    alert("Tree deleted");
+    location.reload();
   }
 };
 
@@ -444,8 +480,8 @@ window.addEventListener("load", () => {
           </p>
 
           <p>
-          <b>Guardian:</b>
-          ${tree.guardian || "None"}
+            <b>Guardian:</b>
+            ${tree.guardian || "None"}
           </p>
 
           ${
@@ -468,6 +504,18 @@ window.addEventListener("load", () => {
           <button
           onclick="window.reportHealth(${tree.id})">
           Report Health
+          </button>
+
+          <button onclick='window.editTree(
+            ${tree.id},
+            ${JSON.stringify(tree.species)},
+            ${JSON.stringify(tree.status)}
+          )'>
+            Edit
+          </button>
+
+          <button onclick="window.deleteTree(${tree.id})">
+            Delete
           </button>
 
           <hr>
