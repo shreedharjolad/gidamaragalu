@@ -8,6 +8,8 @@ from app.auth.security import hash_password
 
 from app.auth.dependencies import get_current_user
 
+from fastapi import HTTPException
+
 router = APIRouter()
 
 @router.post("/register")
@@ -73,19 +75,17 @@ def login(payload: dict):
         )
 
         if not user:
-            return {
-                "error":
-                "Invalid credentials"
-            }
+            raise HTTPException(
+            status_code=401,
+            detail="Invalid username or password")
 
         if not verify_password(
             payload["password"],
             user.password_hash
         ):
-            return {
-                "error":
-                "Invalid credentials"
-            }
+            raise HTTPException(
+            status_code=401,
+            detail="Invalid username or password")
 
         token = create_access_token({
             "user_id": user.id,
