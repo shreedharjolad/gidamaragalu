@@ -180,10 +180,13 @@ window.editTree = async function(treeId, currentSpecies, currentStatus) {
   const status = prompt("Status", currentStatus);
   if (!status) return;
 
+  const token = localStorage.getItem("token");
+
   const response = await fetch(`http://localhost:8000/trees/${treeId}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({ species, status })
   });
@@ -191,6 +194,8 @@ window.editTree = async function(treeId, currentSpecies, currentStatus) {
   if (response.ok) {
     alert("Tree updated");
     location.reload();
+  } else {
+    alert("Update failed");
   }
 };
 
@@ -198,13 +203,20 @@ window.deleteTree = async function(treeId) {
 
   if (!confirm("Delete this tree?")) return;
 
+  const token = localStorage.getItem("token");
+
   const response = await fetch(`http://localhost:8000/trees/${treeId}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
   });
 
   if (response.ok) {
     alert("Tree deleted");
     location.reload();
+  } else {
+    alert("Delete failed");
   }
 };
 
@@ -304,6 +316,11 @@ async function(treeId) {
 };
 
 window.addEventListener("load", () => {
+
+  document.addEventListener(
+  "user-loaded",
+  () => renderTrees()
+  );
 
   let treeMarkers = [];
   let allTrees = [];
@@ -506,17 +523,20 @@ window.addEventListener("load", () => {
           Report Health
           </button>
 
-          <button onclick='window.editTree(
-            ${tree.id},
-            ${JSON.stringify(tree.species)},
-            ${JSON.stringify(tree.status)}
-          )'>
-            Edit
+          ${
+          window.currentUser?.role === "admin"
+          ?
+          `
+          <button onclick="window.editTree(${tree.id}, '${tree.species}', '${tree.status}')">
+          Edit
           </button>
-
           <button onclick="window.deleteTree(${tree.id})">
-            Delete
+          Delete
           </button>
+          `
+          :
+          ""
+          }
 
           <hr>
           <input

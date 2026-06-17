@@ -3,9 +3,12 @@ import Dashboard from "../components/Dashboard.astro";
 import Legend from "../components/Legend.astro";
 import Filters from "../components/Filters.astro";
 import MapView from "../components/MapView.astro";
+import Login from "../components/Login.astro";
 ---
 
 <h1>GreenStreet</h1>
+
+<Login />
 
 <Dashboard />
 
@@ -181,14 +184,16 @@ window.addEventListener("load", () => {
 
       try {
 
+        const token = localStorage.getItem("token");
+
         const response =
           await fetch(
             "http://localhost:8000/trees",
             {
               method: "POST",
               headers: {
-                "Content-Type":
-                  "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
               },
               body: JSON.stringify({
                 species,
