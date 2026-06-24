@@ -8,12 +8,13 @@ from fastapi import UploadFile
 from fastapi import File
 
 from app.services.minio_service import client
-from app.services.minio_service import BUCKET_NAME
+from app.services.minio_service import BUCKET_NAME, MINIO_PUBLIC_URL
 from pydantic import BaseModel
 from datetime import datetime
 
 from sqlalchemy import func
 from app.auth.dependencies import require_admin
+from app.schemas.tree import TreeRequest
 
 router = APIRouter()
 
@@ -32,7 +33,7 @@ def get_trees():
                 "species": tree.species,
                 "status": tree.status,
                 "guardian": tree.guardian,
-                "photo": (f"http://localhost:9000/{BUCKET_NAME}/{tree.photo}"
+                "photo": (f"{MINIO_PUBLIC_URL}/{BUCKET_NAME}/{tree.photo}"
                             if tree.photo
                             else None),
                 "latitude": tree.latitude,
@@ -77,7 +78,7 @@ def get_tree(tree_id: int):
 
 @router.post("/trees")
 def create_tree(
-    payload: dict,
+    payload: TreeRequest,
     _ = Depends(require_admin)
 ):
 

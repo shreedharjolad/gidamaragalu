@@ -1,9 +1,19 @@
-FROM node:22
+# Build stage
+FROM node:22 AS builder
 
 WORKDIR /app
 
-COPY . .
+COPY package*.json ./
 
 RUN npm install
 
-CMD ["npm","run","dev"]
+COPY . .
+
+RUN npm run build
+
+# Runtime stage
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
