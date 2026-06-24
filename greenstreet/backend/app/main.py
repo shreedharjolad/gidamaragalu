@@ -2,8 +2,14 @@ from fastapi import FastAPI
 from app.api.trees import router as tree_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.auth import router as auth_router
+from app.database.connection import Base, engine
+from app.models.tree import Tree
+from app.models.user import User
 
 app = FastAPI()
+
+
+Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
     CORSMiddleware,
