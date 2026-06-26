@@ -14,3 +14,9 @@ MINIO_PUBLIC_URL = os.getenv(
     "MINIO_PUBLIC_URL",
     "http://localhost:9000"
 )
+
+try:
+    if not client.bucket_exists(BUCKET_NAME):
+        client.make_bucket(BUCKET_NAME)
+except Exception as e:
+    print(f"Failed to create bucket {BUCKET_NAME}: {e}")
