@@ -188,7 +188,7 @@ window.addEventListener("load", () => {
 
         const response =
           await fetch(
-            "http://localhost:8000/trees",
+            "/api/trees",
             {
               method: "POST",
               headers: {
@@ -242,7 +242,7 @@ window.addEventListener("load", () => {
 });
 
 fetch(
-  "http://localhost:8000/leaderboard"
+  "/api/leaderboard"
 )
   .then(
     response => response.json()
@@ -279,7 +279,7 @@ fetch(
   });
 
 fetch(
-  "http://localhost:8000/analytics"
+  "/api/analytics"
 )
   .then(
     response => response.json()

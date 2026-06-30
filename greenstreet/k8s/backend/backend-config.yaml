@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: backend-config
+  namespace: greenstreet
+
+data:
+  MINIO_BUCKET_NAME: tree-photos
+  MINIO_PUBLIC_URL: http://minio:9000
+  DATABASE_NAME: greenstreet
+  CORS_ORIGINS: http://greenstreet.local:8080
