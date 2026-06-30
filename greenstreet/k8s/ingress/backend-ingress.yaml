@@ -2,8 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 
 metadata:
-  name: greenstreet-ingress
+  name: backend-ingress
   namespace: greenstreet
+
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -13,25 +14,15 @@ spec:
 
   rules:
   - host: greenstreet.local
+
     http:
       paths:
-
-        - path: /api(/|$)(.*) 
-          pathType: ImplementationSpecific 
-
-          backend: 
-            service:
-              name: backend
-                
-              port:
-                number: 8000
-
-        - path: /
-          pathType: Prefix
+        - path: /api(/|$)(.*)
+          pathType: ImplementationSpecific
 
           backend:
             service:
-              name: frontend
+              name: backend
 
               port:
-                number: 80
+                number: 8000
