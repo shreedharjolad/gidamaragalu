@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: backend-config
+  namespace: greenstreet
+
+data:
+  MINIO_BUCKET_NAME: {{ .Values.config.minio.bucketName | quote }}
+  MINIO_PUBLIC_URL: {{ .Values.config.minio.publicUrl | quote }}
+  DATABASE_NAME: {{ .Values.config.database.name | quote }}
+  CORS_ORIGINS: {{ .Values.config.corsOrigins | quote }}
