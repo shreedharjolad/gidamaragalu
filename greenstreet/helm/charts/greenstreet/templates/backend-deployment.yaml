@@ -6,7 +6,9 @@ metadata:
   namespace: greenstreet
 
 spec:
+  {{- if not .Values.backend.hpa.enabled }}
   replicas: {{ .Values.backend.replicaCount }}
+  {{- end }}
 
   strategy:
     type: RollingUpdate
