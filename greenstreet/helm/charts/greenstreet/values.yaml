@@ -1,15 +1,30 @@
+namespace: greenstreet
+
 backend:
   replicaCount: 2
+
   image:
     repository: compose_backend
     tag: latest
     pullPolicy: Never
+  
+  service:
+    port: 8000
+  
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
 
   hpa:
     enabled: true
     minReplicas: 1
-    maxReplicas: 5
-    cpuUtilization: 50
+    maxReplicas: 3
+    cpuUtilization: 70
 
   pdb:
     enabled: true
@@ -17,23 +32,20 @@ backend:
 
 frontend:
   replicaCount: 1
+
   image:
     repository: compose_frontend
     tag: latest
     pullPolicy: Never
 
-config:
-  corsOrigins: http://greenstreet.local:8080
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "64Mi"
 
-  database:
-    name: greenstreet
-
-  minio:
-    bucketName: tree-photos
-    publicUrl: http://minio:9000
-
-ingress:
-  host: greenstreet.local
+    limits:
+      cpu: "250m"
+      memory: "128Mi"
 
 postgres:
 
@@ -42,6 +54,10 @@ postgres:
     tag: "17"
 
   storage: 2Gi
+
+  service:
+    apiPort: 9000
+    consolePort: 9001
 
   credentials:
     username: greenstreet
@@ -78,3 +94,18 @@ minio:
     limits:
       cpu: "500m"
       memory: "512Mi"
+
+config:
+  corsOrigins: http://greenstreet.local:8080
+
+  database:
+    name: greenstreet
+
+  minio:
+    bucketName: tree-photos
+    publicUrl: http://minio:9000
+
+ingress:
+  enabled: true
+  className: nginx
+  host: greenstreet.local

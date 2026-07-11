@@ -28,9 +28,9 @@ spec:
 
         resources:
           requests:
-            cpu: "100m"
-            memory: "64Mi"
+            cpu: {{ .Values.frontend.resources.requests.cpu | quote }}
+            memory: {{ .Values.frontend.resources.requests.memory | quote }}
 
           limits:
-            cpu: "250m"
-            memory: "128Mi"
+            cpu: {{ .Values.frontend.resources.limits.cpu | quote }}
+            memory: {{ .Values.frontend.resources.limits.memory | quote }}

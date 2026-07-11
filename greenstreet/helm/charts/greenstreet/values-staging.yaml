@@ -1,0 +1,31 @@
+backend:
+  replicaCount: 2
+
+  image:
+    tag: staging
+
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+frontend:
+  replicaCount: 2
+
+  image:
+    tag: staging
+
+postgres:
+  storage:
+    size: 2Gi
+
+minio:
+  storage:
+    size: 5Gi
+
+ingress:
+  host: staging.greenstreet.example.com
+
+config:
+  corsOrigins:
+    - https://staging.greenstreet.example.com

@@ -1,0 +1,39 @@
+backend:
+  replicaCount: 3
+
+  image:
+    tag: "1.0.0"
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+  hpa:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 5
+
+frontend:
+  replicaCount: 3
+
+  image:
+    tag: "1.0.0"
+
+postgres:
+  storage:
+    size: 3Gi
+
+minio:
+  storage:
+    size: 6Gi
+
+ingress:
+  host: greenstreet.example.com
+
+config:
+  corsOrigins:
+    - https://greenstreet.example.com

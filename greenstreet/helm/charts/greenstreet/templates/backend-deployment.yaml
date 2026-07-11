@@ -71,12 +71,12 @@ spec:
           
           resources:
             requests:
-              cpu: "250m"
-              memory: "256Mi"
+              cpu: {{ .Values.backend.resources.requests.cpu | quote }}
+              memory: {{ .Values.backend.resources.requests.memory | quote }}
 
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: {{ .Values.backend.resources.limits.cpu | quote }}
+              memory: {{ .Values.backend.resources.limits.memory | quote }}
 
           startupProbe:
             httpGet:
