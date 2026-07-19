@@ -88,3 +88,14 @@ project_root() {
 }
 
 ENVIRONMENT="${1:-kind}"
+
+run() {
+    info "Running: $1"
+
+    if eval "$1"; then
+        success "Done"
+    else
+        error "Failed"
+        exit 1
+    fi
+}
