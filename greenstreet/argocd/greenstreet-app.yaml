@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/shreedharjolad/gidamaragalu.git
+    repoURL: git@github.com:shreedharjolad/gidamaragalu.git
     targetRevision: develop
     path: helm/charts/greenstreet
 
