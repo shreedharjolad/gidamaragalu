@@ -4,6 +4,10 @@ kind: Service
 metadata:
   name: backend
   namespace: greenstreet
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "8000"
 
 spec:
   selector:
