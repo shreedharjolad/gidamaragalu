@@ -6,9 +6,11 @@ from app.database.connection import Base, engine
 from app.models.tree import Tree
 from app.models.user import User
 from app.api.health import router as health_router
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
 
+Instrumentator().instrument(app).expose(app)
 
 Base.metadata.create_all(bind=engine)
 
