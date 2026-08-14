@@ -6,6 +6,8 @@ import MapView from "../components/MapView.astro";
 import Login from "../components/Login.astro";
 ---
 
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
 <h1>GreenStreet</h1>
 
 <Login />
@@ -73,31 +75,107 @@ Loading...
 
 <style>
 
+/* ---------- Base ---------- */
+
+:global(*) {
+  box-sizing: border-box;
+}
+
+:global(html) {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+:global(body) {
+  margin: 0;
+  width: 100%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f7f8f7;
+  color: #222;
+}
+
+h1 {
+  margin: 0;
+  padding: 1rem;
+  text-align: center;
+}
+
+h2 {
+  padding: 0 1rem;
+}
+
+/* ---------- Analytics ---------- */
+
+.analytics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 1rem;
+}
+
+.analytics div {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 0;
+  background: white;
+}
+
+/* ---------- Leaderboard ---------- */
+
+#leaderboard {
+  margin: 0 1rem 1rem;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* ---------- Toolbar ---------- */
+
 .toolbar {
   margin: 1rem;
+  padding: 12px;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }
 
-input {
-  padding: 8px;
-}
-
-button {
-  padding: 8px 12px;
-  cursor: pointer;
+.toolbar input[type="text"] {
+  flex: 1 1 220px;
+  min-width: 0;
+  padding: 10px;
+  font-size: 16px;
 }
 
 #selected-location {
   font-weight: bold;
+  flex: 1 1 220px;
 }
 
 #message {
+  width: 100%;
   min-height: 24px;
   font-weight: bold;
-  margin-top: 5px;
+}
+
+button {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #aaa;
+  background: white;
+}
+
+/* Important for mobile touch targets */
+button,
+input {
+  min-height: 44px;
 }
 
 .error {
@@ -108,17 +186,73 @@ button {
   color: green;
 }
 
-.analytics {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 12px;
+/* ---------- Mobile ---------- */
+
+@media (max-width: 768px) {
+
+  h1 {
+    font-size: 1.6rem;
+    padding: 0.75rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+  }
+
+  .analytics {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 0.75rem;
+  }
+
+  .analytics div {
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  #leaderboard {
+    margin: 0 0.75rem 0.75rem;
+  }
+
+  .toolbar {
+    margin: 0.75rem;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar input[type="text"],
+  #selected-location,
+  #message,
+  .toolbar button {
+    width: 100%;
+    flex: none;
+  }
+
+  .toolbar button {
+    min-height: 48px;
+    font-size: 16px;
+  }
 }
 
-.analytics div {
-  border: 1px solid #ccc;
-  padding: 12px;
-  min-width: 140px;
+/* ---------- Very small phones ---------- */
+
+@media (max-width: 400px) {
+
+  .analytics {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin: 0.5rem;
+  }
+
+  .analytics div {
+    font-size: 13px;
+    padding: 8px;
+  }
+
 }
 
 </style>
@@ -215,15 +349,28 @@ window.addEventListener("load", () => {
             location.reload();
           }, 1000);
 
-        } else {
+        } else if (response.status === 401) {
 
-          message.textContent =
-            "Failed to add tree.";
+            message.textContent = "Please log in to add a tree.";
 
-          message.className =
-            "error";
+            message.className = "error";
 
-        }
+          } else if (response.status === 403) {
+
+            message.textContent =
+              "You are not an admin. Please contact an admin to add a tree.";
+
+            message.className =
+              "error";
+
+          } else {
+
+            message.textContent =
+              "Unable to add tree. Please try again.";
+
+            message.className =
+              "error";
+          }
 
       } catch (error) {
 
