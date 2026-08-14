@@ -35,6 +35,7 @@ import "leaflet/dist/leaflet.css";
   #map {
     height: 65vh;
     min-height: 400px;
+    max-height: 600px;
     border-radius: 0;
   }
 }
@@ -369,8 +370,15 @@ window.addEventListener("load", () => {
 
   const map =
   L.map("map", {
-    scrollWheelZoom: false
-  }).setView([17.3297, 76.8343],13);
+    scrollWheelZoom: false,
+    touchZoom: true,
+    dragging: true,
+    doubleClickZoom: true
+  })
+  .setView(
+    [17.3297, 76.8343],
+    13
+  );
 
   let selectedMarker = null;
 
@@ -508,6 +516,7 @@ window.addEventListener("load", () => {
             style="
               width:100%;
               max-width:100%;
+              height:auto;
               border-radius:8px;
               margin-bottom:10px;
             "

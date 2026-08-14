@@ -1,20 +1,102 @@
-<div style="margin-bottom:20px">
+<div class="login-container">
 
-  <input id="username" placeholder="Username" />
+  <div class="login-fields">
 
-  <input id="password" type="password" placeholder="Password" />
+    <input
+      id="username"
+      placeholder="Username"
+    />
 
-  <button id="login-btn">Login</button>
+    <input
+      id="password"
+      type="password"
+      placeholder="Password"
+    />
 
-  <button id="logout-btn" style="display:none">
-    Logout
-  </button>
+    <button id="login-btn">
+      Login
+    </button>
+
+    <button
+      id="logout-btn"
+      style="display:none"
+    >
+      Logout
+    </button>
+
+  </div>
 
   <span id="auth-status">
     Not logged in
   </span>
 
 </div>
+
+<style>
+.login-container {
+  margin: 0 1rem 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.login-fields {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.login-fields input {
+  min-height: 44px;
+  padding: 10px;
+  font-size: 16px;
+  min-width: 0;
+}
+
+.login-fields input:first-child {
+  flex: 1;
+}
+
+.login-fields input:nth-child(2) {
+  flex: 1;
+}
+
+.login-fields button {
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 16px;
+}
+
+#auth-status {
+  white-space: nowrap;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .login-container {
+    margin: 0 0.75rem 20px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .login-fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .login-fields input,
+  .login-fields button {
+    width: 100%;
+  }
+
+  #auth-status {
+    text-align: center;
+    white-space: normal;
+  }
+}
+</style>
 
 <script>
 window.addEventListener("load", () => {
