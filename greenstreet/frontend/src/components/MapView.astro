@@ -368,17 +368,23 @@ window.addEventListener("load", () => {
   let treeMarkers = [];
   let allTrees = [];
 
-  const map =
-  L.map("map", {
-    scrollWheelZoom: false,
-    touchZoom: true,
-    dragging: true,
-    doubleClickZoom: true
-  })
-  .setView(
-    [17.3297, 76.8343],
-    13
-  );
+  const map = L.map("map", {
+  scrollWheelZoom: false,
+  touchZoom: true,
+  dragging: true,
+  doubleClickZoom: true
+}).setView(
+  [17.3297, 76.8343],
+  13
+);
+
+const isMobile =
+  window.matchMedia("(max-width: 768px)").matches;
+
+if (isMobile) {
+  map.dragging.disable();
+  map.touchZoom.enable();
+}
 
   let selectedMarker = null;
 

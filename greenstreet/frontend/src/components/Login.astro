@@ -1,7 +1,6 @@
 <div class="login-container">
 
   <div class="login-fields">
-
     <input
       id="username"
       placeholder="Username"
@@ -13,87 +12,90 @@
       placeholder="Password"
     />
 
-    <button id="login-btn">
-      Login
-    </button>
+    <div class="login-actions">
+      <button id="login-btn">
+        Login
+      </button>
 
-    <button
-      id="logout-btn"
-      style="display:none"
-    >
-      Logout
-    </button>
-
+      <button
+        id="logout-btn"
+        style="display:none"
+      >
+        Logout
+      </button>
+    </div>
   </div>
 
-  <span id="auth-status">
+  <div id="auth-status">
     Not logged in
-  </span>
+  </div>
 
 </div>
 
 <style>
 .login-container {
   margin: 0 1rem 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
 }
 
 .login-fields {
   display: flex;
   gap: 8px;
-  flex: 1;
+  align-items: center;
 }
 
 .login-fields input {
+  flex: 1;
+  min-width: 0;
   min-height: 44px;
   padding: 10px;
   font-size: 16px;
-  min-width: 0;
 }
 
-.login-fields input:first-child {
-  flex: 1;
+.login-actions {
+  display: flex;
+  gap: 8px;
 }
 
-.login-fields input:nth-child(2) {
-  flex: 1;
-}
-
-.login-fields button {
+.login-actions button {
   min-height: 44px;
   padding: 10px 14px;
   font-size: 16px;
 }
 
 #auth-status {
-  white-space: nowrap;
+  margin-top: 8px;
+  font-weight: 500;
 }
 
 /* Mobile */
 @media (max-width: 768px) {
+
   .login-container {
     margin: 0 0.75rem 20px;
-    flex-direction: column;
-    align-items: stretch;
   }
 
   .login-fields {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     gap: 8px;
   }
 
-  .login-fields input,
-  .login-fields button {
+  .login-fields input {
+    width: 100%;
+  }
+
+  .login-actions {
+    width: 100%;
+  }
+
+  .login-actions button {
     width: 100%;
   }
 
   #auth-status {
     text-align: center;
-    white-space: normal;
+    margin-top: 8px;
   }
 }
 </style>
