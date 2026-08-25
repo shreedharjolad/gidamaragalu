@@ -11,8 +11,8 @@ frontend:
     pullPolicy: Never
 
 ingress:
-  host: greenstreet.local
+  host: greenstreet.192.168.1.7.nip.io
 
 config:
   corsOrigins:
-    - http://greenstreet.local:8080
+    - http://greenstreet.192.168.1.7.nip.io:8080
