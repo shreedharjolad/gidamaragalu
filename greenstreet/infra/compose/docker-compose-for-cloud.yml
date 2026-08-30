@@ -12,7 +12,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
-    build: ./greenstreet/backend
+    build: ../../backend
 
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -29,7 +29,9 @@ services:
       - minio
 
   frontend:
-    build: ./greenstreet/frontend
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile-cloud
 
     ports:
       - "80:80"
