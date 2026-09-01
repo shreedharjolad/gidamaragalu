@@ -28,7 +28,7 @@ client = Minio(
 # Separate client used ONLY for generating browser-facing
 # presigned URLs.
 presigned_client = Minio(
-    os.getenv("MINIO_PUBLIC_ENDPOINT"),
+    MINIO_ENDPOINT,
     access_key=MINIO_ACCESS_KEY,
     secret_key=MINIO_SECRET_KEY,
     secure=MINIO_SECURE
@@ -48,10 +48,16 @@ except Exception as e:
 
 
 def get_presigned_url(
-    object_name: str, expires_minutes: int = 2) -> str:
+    object_name: str,
+    expires_minutes: int = 2) -> str:
 
-    return presigned_client.presigned_get_object(
+    url = presigned_client.presigned_get_object(
         bucket_name=BUCKET_NAME,
         object_name=object_name,
         expires=timedelta(minutes=expires_minutes)
+    )
+
+    return url.replace(
+        f"http://{MINIO_ENDPOINT}",
+        f"http://{MINIO_PUBLIC_ENDPOINT}"
     )
