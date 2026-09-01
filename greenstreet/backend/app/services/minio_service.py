@@ -59,5 +59,5 @@ def get_presigned_url(
 
     return url.replace(
         f"http://{MINIO_ENDPOINT}",
-        f"http://{MINIO_PUBLIC_ENDPOINT}"
+        f"http://{MINIO_PRESIGNED_ENDPOINT}"
     )
