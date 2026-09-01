@@ -28,7 +28,7 @@ client = Minio(
 # Separate client used ONLY for generating browser-facing
 # presigned URLs.
 presigned_client = Minio(
-    MINIO_PRESIGNED_ENDPOINT,
+    os.getenv("MINIO_PUBLIC_ENDPOINT"),
     access_key=MINIO_ACCESS_KEY,
     secret_key=MINIO_SECRET_KEY,
     secure=MINIO_SECURE

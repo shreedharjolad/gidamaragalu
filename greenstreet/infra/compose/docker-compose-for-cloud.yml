@@ -44,6 +44,9 @@ services:
 
     command: server /data --console-address ":9001"
 
+    env_file:
+      - /etc/greenstreet/cloud.env
+
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
