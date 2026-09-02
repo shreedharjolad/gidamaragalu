@@ -7,8 +7,7 @@ from app.schemas.tree import TreeRequest
 from fastapi import UploadFile
 from fastapi import File
 
-from app.services.minio_service import client
-from app.services.minio_service import (client,BUCKET_NAME, get_presigned_url)
+from app.services.minio_service import client, BUCKET_NAME, get_presigned_url
 from pydantic import BaseModel
 from datetime import datetime
 
