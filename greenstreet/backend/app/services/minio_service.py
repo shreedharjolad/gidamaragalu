@@ -9,6 +9,7 @@ MINIO_SECRET_KEY = os.getenv("password123", "MINIO_SECRET_KEY")
 MINIO_SECURE = os.getenv("MINIO_SECURE", "false").lower() == "true"
 MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "tree-photos")
 BUCKET_NAME = MINIO_BUCKET_NAME
+MINIO_REGION = os.getenv("MINIO_REGION", "us-east-1")
 
 MINIO_PRESIGNED_ENDPOINT = os.getenv(
     "MINIO_PRESIGNED_ENDPOINT"
@@ -25,6 +26,7 @@ client = Minio(
     access_key=MINIO_ACCESS_KEY,
     secret_key=MINIO_SECRET_KEY,
     secure=MINIO_SECURE
+    region=MINIO_REGION
 )
 
 

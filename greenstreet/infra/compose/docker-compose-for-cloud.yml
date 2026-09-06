@@ -24,6 +24,7 @@ services:
       MINIO_PRESIGNED_ENDPOINT: ${MINIO_PRESIGNED_ENDPOINT}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
       MINIO_SECURE: "false"
+      MINIO_REGION: us-east-1
 
     depends_on:
       - postgres
@@ -51,6 +52,7 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_REGION: us-east-1
     
     ports:
       - "9001:9001"
