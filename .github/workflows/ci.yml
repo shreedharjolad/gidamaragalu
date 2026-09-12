@@ -23,17 +23,28 @@ jobs:
           echo "Branch: $GITHUB_REF_NAME"
           echo "Commit: $GITHUB_SHA"
 
-      - name: Check repository structure
+      - name: Diagnose workspace
         run: |
-          echo "=== Repository ==="
+          echo "=== Current Directory ==="
+          pwd
+
+          echo "=== Current Directory using PWD variable ==="
+          echo "$PWD"
+
+          echo "=== Repository root ==="
           ls -la
 
-          echo "=== Backend ==="
-          ls -la greenstreet/backend
+          echo "=== Find backend directories ==="
+          find . -maxdepth 4 -type d -name backend -print
 
-          echo "=== Frontend ==="
-          ls -la greenstreet/frontend
+          echo "=== Find frontend directories ==="
+          find . -maxdepth 4 -type d -name frontend -print
 
-      - name: CI completed
-        run: |
-          echo "GreenStreet CI completed successfully."
+          echo "=== GreenStreet directory ==="
+          ls -la greenstreet || true
+
+          echo "=== GreenStreet backend ==="
+          ls -la greenstreet/backend || true
+
+          echo "=== GreenStreet frontend ==="
+          ls -la greenstreet/frontend || true
