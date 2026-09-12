@@ -29,10 +29,10 @@ jobs:
           ls -la
 
           echo "=== Backend ==="
-          ls -la backend
+          ls -la greenstreet/backend
 
           echo "=== Frontend ==="
-          ls -la frontend
+          ls -la greenstreet/frontend
 
       - name: CI completed
         run: |
