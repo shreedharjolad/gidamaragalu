@@ -1,0 +1,39 @@
+name: GreenStreet CI
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  ci:
+    name: GreenStreet CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Show repository
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Branch: $GITHUB_REF_NAME"
+          echo "Commit: $GITHUB_SHA"
+
+      - name: Check repository structure
+        run: |
+          echo "=== Repository ==="
+          ls -la
+
+          echo "=== Backend ==="
+          ls -la backend
+
+          echo "=== Frontend ==="
+          ls -la frontend
+
+      - name: CI completed
+        run: |
+          echo "GreenStreet CI completed successfully."
