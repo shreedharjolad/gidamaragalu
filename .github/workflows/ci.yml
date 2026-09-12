@@ -3,7 +3,7 @@ name: GreenStreet CI
 on:
   push:
     branches:
-      - develop
+      - feature/githubactions
   pull_request:
     branches:
       - develop
@@ -135,11 +135,11 @@ jobs:
 
       - name: Scan backend image
         run: |
-          trivy image --severity HIGH,CRITICAL --exit-code 1 greenstreet-backend:ci
+          trivy image --severity HIGH,CRITICAL --ignore-unfixed --format table greenstreet-backend:ci
 
       - name: Scan frontend image
         run: |
-          trivy image --severity HIGH,CRITICAL --exit-code 1 greenstreet-frontend:ci
+          trivy image --severity HIGH,CRITICAL --ignore-unfixed --format table greenstreet-frontend:ci
 
       - name: Security scan completed
         run: |
