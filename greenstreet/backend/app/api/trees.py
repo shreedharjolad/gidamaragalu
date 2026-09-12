@@ -7,8 +7,7 @@ from app.schemas.tree import TreeRequest
 from fastapi import UploadFile
 from fastapi import File
 
-from app.services.minio_service import client
-from app.services.minio_service import BUCKET_NAME, MINIO_PUBLIC_URL
+from app.services.minio_service import client, MINIO_BUCKET_NAME, get_presigned_url
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -33,9 +32,10 @@ def get_trees():
                 "species": tree.species,
                 "status": tree.status,
                 "guardian": tree.guardian,
-                "photo": (f"{MINIO_PUBLIC_URL}/{BUCKET_NAME}/{tree.photo}"
-                            if tree.photo
-                            else None),
+                "photo": (
+                    get_presigned_url(tree.photo) 
+                    if tree.photo 
+                    else None),
                 "latitude": tree.latitude,
                 "longitude": tree.longitude,
                 "last_reported_at": tree.last_reported_at
@@ -70,7 +70,11 @@ def get_tree(tree_id: int):
             "species": tree.species,
             "status": tree.status,
             "guardian": tree.guardian,
-            "photo": tree.photo
+            "photo": (
+                get_presigned_url(tree.photo)
+                if tree.photo
+                else None
+            )
         }
 
     finally:
