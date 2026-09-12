@@ -9,42 +9,138 @@ on:
       - develop
 
 jobs:
-  ci:
-    name: GreenStreet CI
+  backend:
+    name: Backend CI
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Show repository
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        working-directory: greenstreet/backend
         run: |
-          echo "Repository: $GITHUB_REPOSITORY"
-          echo "Branch: $GITHUB_REF_NAME"
-          echo "Commit: $GITHUB_SHA"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Diagnose workspace
+      - name: Check Python files
+        working-directory: greenstreet/backend
         run: |
-          echo "=== Current Directory ==="
-          pwd
+          python -m compileall app
 
-          echo "=== Current Directory using PWD variable ==="
-          echo "$PWD"
+      - name: Backend CI completed
+        run: |
+          echo "Backend CI completed successfully."
 
-          echo "=== Repository root ==="
-          ls -la
 
-          echo "=== Find backend directories ==="
-          find . -maxdepth 4 -type d -name backend -print
+  frontend:
+    name: Frontend CI
+    runs-on: ubuntu-latest
 
-          echo "=== Find frontend directories ==="
-          find . -maxdepth 4 -type d -name frontend -print
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-          echo "=== GreenStreet directory ==="
-          ls -la greenstreet || true
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: greenstreet/frontend/package-lock.json
 
-          echo "=== GreenStreet backend ==="
-          ls -la greenstreet/backend || true
+      - name: Install frontend dependencies
+        working-directory: greenstreet/frontend
+        run: |
+          npm ci
 
-          echo "=== GreenStreet frontend ==="
-          ls -la greenstreet/frontend || true
+      - name: Build frontend
+        working-directory: greenstreet/frontend
+        run: |
+          npm run build
+
+      - name: Frontend CI completed
+        run: |
+          echo "Frontend CI completed successfully."
+
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs:
+      - backend
+      - frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build backend Docker image
+        working-directory: greenstreet/backend
+        run: |
+          docker build -t greenstreet-backend:ci .
+
+      - name: Build frontend Docker image
+        working-directory: greenstreet/frontend
+        run: |
+          docker build -t greenstreet-frontend:ci .
+
+      - name: Show Docker images
+        run: |
+          docker images | grep greenstreet
+
+      - name: Docker build completed
+        run: |
+          echo "Docker images built successfully."
+
+
+  security:
+    name: Trivy Security Scan
+    runs-on: ubuntu-latest
+    needs:
+      - docker
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build backend image
+        working-directory: greenstreet/backend
+        run: |
+          docker build -t greenstreet-backend:ci .
+
+      - name: Build frontend image
+        working-directory: greenstreet/frontend
+        run: |
+          docker build -t greenstreet-frontend:ci .
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key \
+            | gpg --dearmor \
+            | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" \
+            | sudo tee /etc/apt/sources.list.d/trivy.list
+
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Scan backend image
+        run: |
+          trivy image --severity HIGH,CRITICAL --exit-code 1 greenstreet-backend:ci
+
+      - name: Scan frontend image
+        run: |
+          trivy image --severity HIGH,CRITICAL --exit-code 1 greenstreet-frontend:ci
+
+      - name: Security scan completed
+        run: |
+          echo "Trivy security scans completed successfully."
