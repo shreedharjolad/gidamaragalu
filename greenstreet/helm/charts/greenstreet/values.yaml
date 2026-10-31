@@ -76,7 +76,7 @@ postgres:
 minio:
 
   image:
-    repository: minio/minio
+    repository: cgr.dev/chainguard/minio
     tag: latest
 
   storage: 2Gi

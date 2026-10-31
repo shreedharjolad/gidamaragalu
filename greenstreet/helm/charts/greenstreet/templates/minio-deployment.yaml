@@ -18,6 +18,31 @@ spec:
         app: minio
 
     spec:
+      # Fix existing PVC ownership before MinIO starts.
+      initContainers:
+      - name: fix-volume-permissions
+        image: busybox:1.36
+        command:
+        - sh
+        - -c
+        - |
+          echo "Fixing MinIO volume permissions..."
+          chown -R 65532:65532 /data
+          echo "Volume permissions updated."
+
+        securityContext:
+          runAsUser: 0
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - CHOWN
+
+        volumeMounts:
+        - name: minio-storage
+          mountPath: /data
+
       containers:
       - name: minio
 
@@ -28,6 +53,12 @@ spec:
         - /data
         - --console-address
         - ":9001"
+
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65532
+          runAsGroup: 65532
+          allowPrivilegeEscalation: false
 
         env:
         - name: MINIO_ROOT_USER
@@ -48,7 +79,6 @@ spec:
         - containerPort: 9001
 
         resources:
-
           requests:
             cpu: {{ .Values.minio.resources.requests.cpu | quote }}
             memory: {{ .Values.minio.resources.requests.memory | quote }}
