@@ -42,7 +42,9 @@ services:
       - backend
 
   minio:
-    image: minio/minio
+    image: cgr.dev/chainguard/minio
+
+    user: "65532:65532"
 
     command: server /data --console-address ":9001"
 
