@@ -169,39 +169,39 @@ jobs:
           echo "Trivy security scans completed successfully."
 
 
-    publish:
-      if: github.event_name == 'push'
-      needs: [docker, security]
-      runs-on: ubuntu-latest
+  publish:
+    if: github.event_name == 'push'
+    needs: [docker, security]
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v6
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-        - name: Login to GHCR
-          uses: docker/login-action@v3
-          with:
-            registry: ghcr.io
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: Build and push backend
-          run: |
-            docker build \
-              -t ghcr.io/shreedharjolad/greenstreet-backend:${GITHUB_SHA} \
-              -t ghcr.io/shreedharjolad/greenstreet-backend:latest \
-              greenstreet/backend
+      - name: Build and push backend
+        run: |
+          docker build \
+            -t ghcr.io/shreedharjolad/greenstreet-backend:${GITHUB_SHA} \
+            -t ghcr.io/shreedharjolad/greenstreet-backend:latest \
+            greenstreet/backend
 
-            docker push ghcr.io/shreedharjolad/greenstreet-backend:${GITHUB_SHA}
-            docker push ghcr.io/shreedharjolad/greenstreet-backend:latest
+          docker push ghcr.io/shreedharjolad/greenstreet-backend:${GITHUB_SHA}
+          docker push ghcr.io/shreedharjolad/greenstreet-backend:latest
 
-        - name: Build and push Oracle frontend
-          run: |
-            docker build \
-              -f greenstreet/frontend/Dockerfile-cloud \
-              -t ghcr.io/shreedharjolad/greenstreet-frontend-cloud:${GITHUB_SHA} \
-              -t ghcr.io/shreedharjolad/greenstreet-frontend-cloud:latest \
-              greenstreet/frontend
+      - name: Build and push Oracle frontend
+        run: |
+          docker build \
+            -f greenstreet/frontend/Dockerfile-cloud \
+            -t ghcr.io/shreedharjolad/greenstreet-frontend-cloud:${GITHUB_SHA} \
+            -t ghcr.io/shreedharjolad/greenstreet-frontend-cloud:latest \
+            greenstreet/frontend
 
-            docker push ghcr.io/shreedharjolad/greenstreet-frontend-cloud:${GITHUB_SHA}
-            docker push ghcr.io/shreedharjolad/greenstreet-frontend-cloud:latest
+          docker push ghcr.io/shreedharjolad/greenstreet-frontend-cloud:${GITHUB_SHA}
+          docker push ghcr.io/shreedharjolad/greenstreet-frontend-cloud:latest
