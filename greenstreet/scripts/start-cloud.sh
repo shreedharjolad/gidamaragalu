@@ -358,14 +358,7 @@ case "$COMMAND" in
 
     pull)
 
-        IMAGE_TAG="${2:-$IMAGE_TAG}"
-
-        if [ -z "$IMAGE_TAG" ]; then
-            echo "ERROR: IMAGE_TAG is missing."
-            exit 1
-        fi
-
-        export IMAGE_TAG
+        validate_image_tag "${2:-$IMAGE_TAG}"
 
         echo
         echo "Pulling GreenStreet images: $IMAGE_TAG"
