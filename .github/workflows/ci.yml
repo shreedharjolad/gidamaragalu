@@ -205,3 +205,4 @@ jobs:
 
           docker push ghcr.io/shreedharjolad/greenstreet-frontend-cloud:${GITHUB_SHA}
           docker push ghcr.io/shreedharjolad/greenstreet-frontend-cloud:latest
+          
