@@ -169,62 +169,39 @@ jobs:
           echo "Trivy security scans completed successfully."
 
 
-  publish:
-    name: Push Images to GHCR
-    runs-on: ubuntu-latest
-    needs:
-      - docker
-      - security
+    publish:
+      if: github.event_name == 'push'
+      needs: [docker, security]
+      runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v6
 
-      - name: Set image tags
-        id: images
-        run: |
-          SHA_TAG="${GITHUB_SHA}"
+        - name: Login to GHCR
+          uses: docker/login-action@v3
+          with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
 
-          echo "backend_image=${IMAGE_PREFIX}/greenstreet-backend:${SHA_TAG}" >> "$GITHUB_OUTPUT"
-          echo "frontend_image=${IMAGE_PREFIX}/greenstreet-frontend:${SHA_TAG}" >> "$GITHUB_OUTPUT"
+        - name: Build and push backend
+          run: |
+            docker build \
+              -t ghcr.io/shreedharjolad/greenstreet-backend:${GITHUB_SHA} \
+              -t ghcr.io/shreedharjolad/greenstreet-backend:latest \
+              greenstreet/backend
 
-      - name: Build backend Docker image
-        working-directory: greenstreet/backend
-        run: |
-          docker build \
-            -t "${{ steps.images.outputs.backend_image }}" \
-            .
+            docker push ghcr.io/shreedharjolad/greenstreet-backend:${GITHUB_SHA}
+            docker push ghcr.io/shreedharjolad/greenstreet-backend:latest
 
-      - name: Build frontend Docker image
-        working-directory: greenstreet/frontend
-        run: |
-          docker build \
-            -t "${{ steps.images.outputs.frontend_image }}" \
-            .
+        - name: Build and push Oracle frontend
+          run: |
+            docker build \
+              -f greenstreet/frontend/Dockerfile-cloud \
+              -t ghcr.io/shreedharjolad/greenstreet-frontend-cloud:${GITHUB_SHA} \
+              -t ghcr.io/shreedharjolad/greenstreet-frontend-cloud:latest \
+              greenstreet/frontend
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push backend image
-        run: |
-          docker push "${{ steps.images.outputs.backend_image }}"
-
-      - name: Push frontend image
-        run: |
-          docker push "${{ steps.images.outputs.frontend_image }}"
-
-      - name: Show published images
-        run: |
-          echo "Backend image:"
-          echo "${{ steps.images.outputs.backend_image }}"
-
-          echo "Frontend image:"
-          echo "${{ steps.images.outputs.frontend_image }}"
-
-      - name: GHCR publish completed
-        run: |
-          echo "GreenStreet images pushed to GHCR successfully."
+            docker push ghcr.io/shreedharjolad/greenstreet-frontend-cloud:${GITHUB_SHA}
+            docker push ghcr.io/shreedharjolad/greenstreet-frontend-cloud:latest

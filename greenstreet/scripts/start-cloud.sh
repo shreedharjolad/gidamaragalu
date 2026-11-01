@@ -28,6 +28,13 @@ fi
 # for the OCI Vault lookup.
 source "$CLOUD_ENV"
 
+# --------------------------------------------------
+# GHCR image version
+# --------------------------------------------------
+
+IMAGE_TAG="${IMAGE_TAG:-}"
+
+
 if [ -z "${GREENSTREET_SECRET_OCID:-}" ]; then
     echo "ERROR: GREENSTREET_SECRET_OCID is not set."
     exit 1
@@ -159,6 +166,23 @@ compose() {
 }
 
 # --------------------------------------------------
+# Validate GHCR image tag
+# --------------------------------------------------
+
+validate_image_tag() {
+
+    local tag="$1"
+
+    if [[ ! "$tag" =~ ^[0-9a-f]{40}$ ]]; then
+        echo "ERROR: Invalid IMAGE_TAG."
+        echo "Expected a full 40-character Git commit SHA."
+        exit 1
+    fi
+
+    export IMAGE_TAG="$tag"
+}
+
+# --------------------------------------------------
 # Commands
 # --------------------------------------------------
 
@@ -169,10 +193,15 @@ case "$COMMAND" in
 
     deploy)
 
-        echo
-        echo "Building GreenStreet images..."
+        validate_image_tag "${2:-$IMAGE_TAG}"
 
-        compose build
+        echo
+        echo "Deploying GreenStreet version: $IMAGE_TAG"
+
+        echo
+        echo "Pulling backend and frontend images from GHCR..."
+
+        compose pull backend frontend
 
         echo
         echo "Starting GreenStreet..."
@@ -327,13 +356,31 @@ case "$COMMAND" in
 
         ;;
 
+    pull)
+
+        IMAGE_TAG="${2:-$IMAGE_TAG}"
+
+        if [ -z "$IMAGE_TAG" ]; then
+            echo "ERROR: IMAGE_TAG is missing."
+            exit 1
+        fi
+
+        export IMAGE_TAG
+
+        echo
+        echo "Pulling GreenStreet images: $IMAGE_TAG"
+
+        compose pull backend frontend
+
+        ;;
+
     *)
         echo
         echo "Unknown command: $COMMAND"
         echo
         echo "Usage:"
         echo "  ./start-cloud.sh"
-        echo "  ./start-cloud.sh deploy"
+        echo "  ./start-cloud.sh deploy <commit-sha>"
         echo "  ./start-cloud.sh build"
         echo "  ./start-cloud.sh build-no-cache"
         echo "  ./start-cloud.sh up"
@@ -345,6 +392,8 @@ case "$COMMAND" in
         echo "  ./start-cloud.sh status"
         echo "  ./start-cloud.sh config"
         echo "  ./start-cloud.sh down"
+        echo "  ./start-cloud.sh deploy <commit-sha>"
+        echo "  ./start-cloud.sh pull <commit-sha>"
         exit 1
         ;;
 
