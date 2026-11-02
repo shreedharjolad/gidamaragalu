@@ -272,6 +272,12 @@ jobs:
           DEPLOY_SHA="$1"
           APP_DIR="$2"
 
+          export PATH="/home/ubuntu/bin:$PATH"
+
+          echo "Checking OCI CLI..."
+          command -v oci
+          oci --version
+
           echo "Updating Oracle repository..."
 
           cd "$APP_DIR"
