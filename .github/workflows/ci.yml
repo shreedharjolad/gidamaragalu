@@ -217,78 +217,78 @@ jobs:
           docker push ghcr.io/shreedharjolad/greenstreet-frontend-cloud:${GITHUB_SHA}
           docker push ghcr.io/shreedharjolad/greenstreet-frontend-cloud:latest
 
-    deploy-oracle:
-      name: Deploy to Oracle Cloud
-      runs-on: ubuntu-latest
+  deploy-oracle:
+    name: Deploy to Oracle Cloud
+    runs-on: ubuntu-latest
 
-      needs:
-        - publish
+    needs:
+      - publish
 
-      if: github.event_name == 'push' && needs.publish.result == 'success'
+    if: github.event_name == 'push' && needs.publish.result == 'success'
 
-      permissions:
-        contents: read
+    permissions:
+      contents: read
 
-      steps:
-        - name: Configure SSH
-          env:
-            ORACLE_SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
-            ORACLE_KNOWN_HOSTS: ${{ secrets.ORACLE_KNOWN_HOSTS }}
-          run: |
-            mkdir -p ~/.ssh
-            chmod 700 ~/.ssh
+    steps:
+      - name: Configure SSH
+        env:
+          ORACLE_SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
+          ORACLE_KNOWN_HOSTS: ${{ secrets.ORACLE_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
 
-            printf '%s\n' "$ORACLE_SSH_KEY" > ~/.ssh/greenstreet_oracle
-            chmod 600 ~/.ssh/greenstreet_oracle
+          printf '%s\n' "$ORACLE_SSH_KEY" > ~/.ssh/greenstreet_oracle
+          chmod 600 ~/.ssh/greenstreet_oracle
 
-            printf '%s\n' "$ORACLE_KNOWN_HOSTS" > ~/.ssh/known_hosts
-            chmod 600 ~/.ssh/known_hosts
+          printf '%s\n' "$ORACLE_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
-        - name: Deploy GreenStreet on Oracle VM
-          env:
-            ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
-            ORACLE_USER: ${{ secrets.ORACLE_USER }}
-            ORACLE_APP_DIR: ${{ secrets.ORACLE_APP_DIR }}
-            DEPLOY_SHA: ${{ github.sha }}
-          run: |
-            set -euo pipefail
+      - name: Deploy GreenStreet on Oracle VM
+        env:
+          ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          ORACLE_USER: ${{ secrets.ORACLE_USER }}
+          ORACLE_APP_DIR: ${{ secrets.ORACLE_APP_DIR }}
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
 
-            echo "Deploying GreenStreet commit: $DEPLOY_SHA"
+          echo "Deploying GreenStreet commit: $DEPLOY_SHA"
 
-            if [[ ! "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]; then
-              echo "ERROR: Invalid commit SHA"
-              exit 1
-            fi
+          if [[ ! "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "ERROR: Invalid commit SHA"
+            exit 1
+          fi
 
-            ssh \
-              -i ~/.ssh/greenstreet_oracle \
-              -o IdentitiesOnly=yes \
-              -o StrictHostKeyChecking=yes \
-              "$ORACLE_USER@$ORACLE_HOST" \
-              "bash -s -- '$DEPLOY_SHA' '$ORACLE_APP_DIR'" <<'REMOTE'
+          ssh \
+            -i ~/.ssh/greenstreet_oracle \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            "$ORACLE_USER@$ORACLE_HOST" \
+            "bash -s -- '$DEPLOY_SHA' '$ORACLE_APP_DIR'" <<'REMOTE'
 
-            set -euo pipefail
+          set -euo pipefail
 
-            DEPLOY_SHA="$1"
-            APP_DIR="$2"
+          DEPLOY_SHA="$1"
+          APP_DIR="$2"
 
-            echo "Updating Oracle repository..."
+          echo "Updating Oracle repository..."
 
-            cd "$APP_DIR"
+          cd "$APP_DIR"
 
-            git fetch origin feature/githubactions
-            git checkout feature/githubactions
-            git reset --hard "$DEPLOY_SHA"
+          git fetch origin feature/githubactions
+          git checkout feature/githubactions
+          git reset --hard "$DEPLOY_SHA"
 
-            echo "Deploying GHCR images..."
+          echo "Deploying GHCR images..."
 
-            ./greenstreet/scripts/start-cloud.sh deploy "$DEPLOY_SHA"
+          ./greenstreet/scripts/start-cloud.sh deploy "$DEPLOY_SHA"
 
-            echo "Oracle deployment completed successfully."
+          echo "Oracle deployment completed successfully."
 
-            REMOTE
+          REMOTE
 
-        - name: Deployment completed
-          run: |
-            echo "GreenStreet deployed successfully on Oracle Cloud."
-            echo "Commit: $GITHUB_SHA"        
+      - name: Deployment completed
+        run: |
+          echo "GreenStreet deployed successfully on Oracle Cloud."
+          echo "Commit: $GITHUB_SHA"        
